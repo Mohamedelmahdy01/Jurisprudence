@@ -23,11 +23,7 @@ Moassel
 │   ├── configure_firewall.sh
 │   ├── install_certbot.sh
 │   └── configure_ssh.sh
-├── src
-│   ├── app.js
-│   └── ...
 ├── .env.example
-├── package.json
 ├── README.md
 └── crontab.txt
 ```
