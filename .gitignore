@@ -1,0 +1,34 @@
+# Ignore environment variable files
+.env
+.env.*
+
+# Ignore backup files and archives
+*.tar
+*.tar.gz
+*.zip
+*.bak
+
+# Ignore node modules and logs
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE/editor folders
+.vscode/
+.idea/
+
+# Ignore local backup directory if exists
+backup/*.tar.gz
+backup/*.zip
+
+# Ignore crontab user files (if any)
+crontab.txt
+
+# Ignore any private keys
+*.pem
+*.key
