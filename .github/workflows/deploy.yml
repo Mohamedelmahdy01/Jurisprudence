@@ -1,0 +1,38 @@
+name: Deploy to Hostinger VPS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy files to VPS via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "."
+          target: "/home/${{ secrets.VPS_USER }}/moassel"
+
+      - name: Run setup_all.sh on VPS
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.VPS_USER }}/moassel/scripts
+            chmod +x setup_all.sh *.sh ../backup/*.sh ../configure_*.sh
+            ./setup_all.sh
+
+            # إضافة مهام crontab للباك أب وتحديث TLS
+            crontab ../crontab.txt
+
+            # تأكيد تفعيل تجديد الشهادة التلقائي (Certbot)
+            sudo systemctl enable certbot.timer
+            sudo systemctl start certbot.timer

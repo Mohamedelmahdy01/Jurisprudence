@@ -32,10 +32,9 @@ EOL
 # Enable the new configuration
 sudo ln -s /etc/nginx/sites-available/moassel.conf /etc/nginx/sites-enabled/
 
-# Test Nginx configuration
+# Test configuration
 sudo nginx -t
 
-# Restart Nginx to apply changes
 sudo systemctl restart nginx
 
 echo "Nginx configured successfully for Moassel application."
