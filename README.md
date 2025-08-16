@@ -22,73 +22,111 @@ Moassel
 │   ├── configure_nginx.sh
 │   ├── configure_firewall.sh
 │   ├── install_certbot.sh
-│   └── configure_ssh.sh
+│   ├── configure_ssh.sh
+│   └── setup_all.sh
 ├── .env.example
 ├── README.md
-└── crontab.txt
+├── crontab.txt
+└── .github
+    └── workflows
+        └── deploy.yml
 ```
 
 ## Installation
 
-Follow the scripts in the `scripts` directory to set up the necessary components for the Moassel application.
+You can run each setup script manually as described below, or run all scripts automatically using `setup_all.sh`:
 
-### 1. Install Node.js
-Run the `install_node.sh` script to install Node.js.
+### Run All Setup Scripts Automatically
 
-### 2. Install PM2
-Run the `install_pm2.sh` script to install PM2 for managing the Node.js application.
+```bash
+cd scripts
+chmod +x setup_all.sh
+./setup_all.sh
+```
 
-### 3. Install MongoDB
-Run the `install_mongodb.sh` script to install and configure MongoDB.
+### Manual Steps
 
-### 4. Install OpenSearch
-Run the `install_opensearch.sh` script to install OpenSearch.
+1. **Install Node.js**  
+   Run `scripts/install_node.sh`
 
-### 5. Install OpenSearch Dashboards
-Run the `install_opensearch_dashboards.sh` script to install OpenSearch Dashboards.
+2. **Install PM2**  
+   Run `scripts/install_pm2.sh`
 
-### 6. Install OpenSearch CLI Tools
-Run the `install_opensearch_cli.sh` script to install the OpenSearch CLI tools.
+3. **Install MongoDB**  
+   Run `scripts/install_mongodb.sh`
 
-### 7. Install Nginx
-Run the `install_nginx.sh` script to install Nginx as a reverse proxy.
+4. **Install OpenSearch**  
+   Run `scripts/install_opensearch.sh`
 
-### 8. Install AWS CLI
-Run the `install_awscli.sh` script to install the AWS CLI for interacting with Cloudflare R2.
+5. **Install OpenSearch Dashboards**  
+   Run `scripts/install_opensearch_dashboards.sh`
 
-### 9. Configure Nginx
-Run the `configure_nginx.sh` script to set up Nginx for the Moassel application and OpenSearch Dashboards.
+6. **Install OpenSearch CLI Tools**  
+   Run `scripts/install_opensearch_cli.sh`
 
-### 10. Configure Firewall
-Run the `configure_firewall.sh` script to allow necessary ports through the firewall.
+7. **Install Nginx**  
+   Run `scripts/install_nginx.sh`
 
-### 11. Install Certbot
-Run the `install_certbot.sh` script to install Certbot for managing SSL certificates.
+8. **Install AWS CLI**  
+   Run `scripts/install_awscli.sh`
 
-### 12. Configure SSH
-Run the `configure_ssh.sh` script to enhance SSH security settings.
+9. **Configure Nginx**  
+   Run `scripts/configure_nginx.sh`
+
+10. **Configure Firewall**  
+    Run `scripts/configure_firewall.sh`
+
+11. **Install Certbot**  
+    Run `scripts/install_certbot.sh`
+
+12. **Configure SSH**  
+    Run `scripts/configure_ssh.sh`
 
 ## Backup Procedures
 
 The `backup` directory contains scripts for backing up the Moassel project, MongoDB, and OpenSearch.
 
-### 1. Backup Moassel Project
-Run the `backup_moassel.sh` script to back up the Moassel project directory, compress it, upload it to Cloudflare R2, and remove the local backup.
+- **Backup Moassel Project:**  
+  Run `backup/backup_moassel.sh` to back up the Moassel project directory, compress it, upload it to Cloudflare R2, and remove the local backup.
 
-### 2. Backup MongoDB
-Run the `backup_mongodb.sh` script to back up the MongoDB database, export it, compress the export, upload it to Cloudflare R2, and remove the local backup.
+- **Backup MongoDB:**  
+  Run `backup/backup_mongodb.sh` to back up the MongoDB database, compress the export, upload it to Cloudflare R2, and remove the local backup.
 
-### 3. Backup OpenSearch
-Run the `backup_opensearch.sh` script to create a snapshot of the OpenSearch data and upload it to Cloudflare R2.
+- **Backup OpenSearch:**  
+  Run `backup/backup_opensearch.sh` to create a snapshot of the OpenSearch data and upload it to Cloudflare R2.
 
 ## Environment Variables
 
-Refer to the `.env.example` file for the required environment variables for the application.
+Refer to the `.env.example` file for the required environment variables for the application.  
+**Do not commit your real `.env` file to version control.**
 
 ## Scheduled Backups
 
-The `crontab.txt` file contains scheduled tasks for automated backups. You can set up these tasks using the `crontab` command.
+The `crontab.txt` file contains scheduled tasks for automated backups.  
+Example crontab entries:
+```
+0 2 * * 0 /bin/bash /home/<VPS_USER>/moassel/backup/backup_moassel.sh > /home/<VPS_USER>/moassel/backups/moassel.log 2>&1
+0 2 * * 0 /bin/bash /home/<VPS_USER>/moassel/backup/backup_mongodb.sh > /home/<VPS_USER>/moassel/backups/mongodb.log 2>&1
+0 2 * * 0 /bin/bash /home/<VPS_USER>/moassel/backup/backup_opensearch.sh > /home/<VPS_USER>/moassel/backups/opensearch.log 2>&1
+```
+Replace `<VPS_USER>` with your actual VPS username.
+
+To apply the scheduled tasks, run:
+```bash
+crontab crontab.txt
+```
+
+## Deployment Automation
+
+Deployment can be automated using GitHub Actions.  
+The workflow will:
+- Copy all files to `/home/<VPS_USER>/moassel/` on your VPS.
+- Run all setup scripts.
+- Set up backup scripts and scheduled tasks.
+
+See `.github/workflows/deploy.yml` for details.
 
 ## Conclusion
 
-This README serves as a guide to set up and manage the Moassel project. For further assistance, refer to the individual script files for detailed instructions.
+This README serves as a guide to set up and manage the Moassel project.  
+For further assistance, refer to the individual script files for detailed instructions.
