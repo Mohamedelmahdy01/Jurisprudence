@@ -1,0 +1,31 @@
+- name: Install MongoDB
+  apt:
+    name: mongodb
+    state: present
+    update_cache: yes
+
+- name: Deploy mongod.conf for Moassel
+  template:
+    src: mongod.conf.j2
+    dest: /etc/mongodb.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart MongoDB
+
+- name: Enable and start MongoDB
+  service:
+    name: mongodb
+    enabled: yes
+    state: started
+
+- name: Create MongoDB admin user
+  shell: |
+    mongo admin --eval "db.createUser({user: 'admin', pwd: 'password', roles:[{role:'root',db:'admin'}]})"
+  args:
+    creates: /var/lib/mongodb/.admin_created
+
+- name: Restart MongoDB
+  systemd:
+    name: mongodb
+    state: restarted

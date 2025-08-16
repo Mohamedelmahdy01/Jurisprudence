@@ -1,0 +1,38 @@
+- name: Harden SSH configuration (disable root login)
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin no'
+  notify: Restart SSH
+
+- name: Change SSH port
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?Port'
+    line: 'Port 2222'
+  notify: Restart SSH
+
+- name: Allow only specific users
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AllowUsers'
+    line: 'AllowUsers your_username'
+  notify: Restart SSH
+
+- name: Disable password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+  notify: Restart SSH
+
+- name: Ensure SSH is running
+  service:
+    name: ssh
+    state: started
+    enabled: yes
+
+- name: Restart SSH
+  systemd:
+    name: ssh
+    state: restarted

@@ -1,0 +1,2 @@
+- name: Install OpenSearch CLI tools (example)
+  shell: echo "Install OpenSearch CLI tools here"

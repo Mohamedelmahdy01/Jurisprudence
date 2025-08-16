@@ -1,0 +1,23 @@
+- name: Copy backup scripts
+  copy:
+    src: "{{ playbook_dir }}/../../backup/"
+    dest: /home/{{ ansible_user }}/moassel/backup/
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+- name: Ensure backups log directory exists
+  file:
+    path: /home/{{ ansible_user }}/moassel/backups
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Setup crontab for Moassel backup
+  cron:
+    name: "Moassel Backup"
+    minute: "0"
+    hour: "2"
+    weekday: "0"
+    job: "/bin/bash /home/{{ ansible_user }}/moassel/backup/backup_moassel.sh > /home/{{ ansible_user }}/moassel/backups/moassel.log 2>&1"
+    user: "{{ ansible_user }}"

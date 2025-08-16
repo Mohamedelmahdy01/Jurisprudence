@@ -1,0 +1,18 @@
+- name: Install Certbot and Nginx plugin
+  apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+    update_cache: yes
+
+- name: Obtain SSL certificate with Certbot
+  command: certbot --nginx --non-interactive --agree-tos -m your@email.com -d your-domain.com
+  args:
+    creates: /etc/letsencrypt/live/your-domain.com/fullchain.pem
+
+- name: Enable and start certbot.timer
+  systemd:
+    name: certbot.timer
+    enabled: yes
+    state: started

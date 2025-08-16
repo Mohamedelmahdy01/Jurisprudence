@@ -1,0 +1,25 @@
+- name: Install OpenSearch Dashboards
+  apt:
+    name: opensearch-dashboards
+    state: present
+    update_cache: yes
+
+- name: Deploy OpenSearch Dashboards config for Moassel
+  template:
+    src: opensearch_dashboards.yml.j2
+    dest: /etc/opensearch-dashboards/opensearch_dashboards.yml
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart OpenSearch Dashboards
+
+- name: Enable and start OpenSearch Dashboards
+  systemd:
+    name: opensearch-dashboards
+    enabled: yes
+    state: started
+
+- name: Restart OpenSearch Dashboards
+  systemd:
+    name: opensearch-dashboards
+    state: restarted

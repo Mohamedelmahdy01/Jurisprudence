@@ -1,0 +1,25 @@
+- name: Install OpenSearch
+  apt:
+    name: opensearch
+    state: present
+    update_cache: yes
+
+- name: Deploy OpenSearch config for Moassel
+  template:
+    src: opensearch.yml.j2
+    dest: /etc/opensearch/opensearch.yml
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart OpenSearch
+
+- name: Enable and start OpenSearch
+  systemd:
+    name: opensearch
+    enabled: yes
+    state: started
+
+- name: Restart OpenSearch
+  systemd:
+    name: opensearch
+    state: restarted

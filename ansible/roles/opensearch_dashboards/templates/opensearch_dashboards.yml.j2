@@ -1,0 +1,20 @@
+# OpenSearch Dashboards configuration for Moassel
+server.host: {{ opensearch_dashboards_host | default('0.0.0.0') }}
+server.port: {{ opensearch_dashboards_port | default(5601) }}
+opensearch.hosts: {{ opensearch_dashboards_opensearch_hosts | default(['http://localhost:9200']) | to_json }}
+
+# Optional security/authentication settings
+# opensearch.username: {{ opensearch_dashboards_username | default(omit) }}
+# opensearch.password: {{ opensearch_dashboards_password | default(omit) }}
+
+# Server basePath (if behind a reverse proxy)
+# server.basePath: {{ opensearch_dashboards_basepath | default(omit) }}
+
+# SSL settings (if using HTTPS directly)
+# server.ssl.enabled: {{ opensearch_dashboards_ssl_enabled | default(false) }}
+# server.ssl.certificate: {{ opensearch_dashboards_ssl_certificate | default(omit) }}
+# server.ssl.key: {{ opensearch_dashboards_ssl_key | default(omit) }}
+
+# i18n.locale: {{ opensearch_dashboards_locale | default('en') }}
+
+# Add more settings as needed

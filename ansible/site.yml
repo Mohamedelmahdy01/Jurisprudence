@@ -1,0 +1,15 @@
+- hosts: moassel
+  become: true
+  roles:
+    - nodejs
+    - pm2
+    - mongodb
+    - opensearch
+    - opensearch_dashboards
+    - opensearch_cli
+    - nginx
+    - awscli
+    - certbot
+    - firewall
+    - ssh
+    - backup
