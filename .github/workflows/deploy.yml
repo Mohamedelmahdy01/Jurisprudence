@@ -10,29 +10,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Copy files to VPS via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_IP }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "."
-          target: "/home/${{ secrets.VPS_USER }}/moassel"
+      - name: Check Ansible requirements on VPS
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          echo "$VPS_SSH_KEY" > vps_key.pem
+          chmod 600 vps_key.pem
+          ssh -o StrictHostKeyChecking=no -i vps_key.pem ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} "\
+            set -e; \
+            echo 'Checking Python3...'; \
+            command -v python3 || (echo 'Python3 not found' && exit 1); \
+            echo 'Checking pip...'; \
+            command -v pip3 || (echo 'pip3 not found, installing...' && sudo apt update && sudo apt install -y python3-pip); \
+            echo 'Checking sudo...'; \
+            command -v sudo || (echo 'sudo not found' && exit 1); \
+            echo 'All requirements are present.'; \
+          "
+          rm -f vps_key.pem
 
-      - name: Run setup_all.sh on VPS
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.VPS_IP }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /home/${{ secrets.VPS_USER }}/moassel/scripts
-            chmod +x setup_all.sh *.sh ../backup/*.sh ../configure_*.sh
-            ./setup_all.sh
+      - name: Install Ansible on runner
+        run: sudo apt update && sudo apt install -y ansible
 
-            # إضافة مهام crontab للباك أب وتحديث TLS
-            crontab ../crontab.txt
-
-            # تأكيد تفعيل تجديد الشهادة التلقائي (Certbot)
-            sudo systemctl enable certbot.timer
-            sudo systemctl start certbot.timer
+      - name: Run Ansible Playbook from runner (with Vault)
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          echo "$VPS_SSH_KEY" > vps_key.pem
+          chmod 600 vps_key.pem
+          echo "$ANSIBLE_VAULT_PASSWORD" > vault_pass.txt
+          echo "${{ secrets.VPS_IP }} ansible_user=${{ secrets.VPS_USER }} ansible_ssh_private_key_file=./vps_key.pem ansible_python_interpreter=/usr/bin/python3" > inventory
+          ansible-playbook -i inventory ansible/site.yml --vault-password-file vault_pass.txt
+          rm -f vps_key.pem vault_pass.txt inventory
