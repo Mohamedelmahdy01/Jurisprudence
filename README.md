@@ -5,33 +5,13 @@ This README provides an overview of the Moassel project, including installation 
 ## Project Structure
 
 ```
-Moassel
-├── ansible
-│   ├── inventory.ini
-│   ├── site.yml
-│   └── roles
-│       ├── nodejs
-│       ├── pm2
-│       ├── mongodb
-│       ├── opensearch
-│       ├── opensearch_dashboards
-│       ├── opensearch_cli
-│       ├── nginx
-│       ├── awscli
-│       ├── certbot
-│       ├── firewall
-│       ├── ssh
-│       └── backup
-├── backup
-│   ├── backup_moassel.sh
-│   ├── backup_mongodb.sh
-│   └── backup_opensearch.sh
-├── .env.example
-├── README.md
-├── crontab.txt
-└── .github
-    └── workflows
-        └── deploy.yml
+Moassel/
+├── ansible/         # Infrastructure as code (playbooks, roles, variables)
+├── backup/          # Backup scripts (automated by Ansible)
+├── crontab.txt      # Cron jobs (managed by Ansible)
+├── .env.example     # Example environment variables
+├── README.md        # Project documentation
+└── .github/         # CI/CD workflows
 ```
 
 ## Installation & Provisioning
@@ -51,31 +31,58 @@ This will:
 
 ## Backup Procedures
 
-The `backup` directory contains scripts for backing up the Moassel project, MongoDB, and OpenSearch. These can be run manually if needed, but are also scheduled via Ansible.
 
-- **Backup Moassel Project:**  
-  Run `backup/backup_moassel.sh` to back up the Moassel project directory, compress it, upload it to Cloudflare R2, and remove the local backup.
+All backup and restore operations are fully automated via Ansible roles. Manual scripts are kept for reference or emergency use only.
 
-- **Backup MongoDB:**  
-  Run `backup/backup_mongodb.sh` to back up the MongoDB database, compress the export, upload it to Cloudflare R2, and remove the local backup.
+- **Backup Moassel Project:**
+  - Automated: Managed by Ansible backup role and scheduled tasks.
+  - Manual: You can run `backup/backup_moassel.sh` if needed.
 
-- **Backup OpenSearch:**  
-  Run `backup/backup_opensearch.sh` to create a snapshot of the OpenSearch data and upload it to Cloudflare R2.
+- **Backup MongoDB:**
+  - Automated: Managed by Ansible backup role and scheduled tasks.
+  - Manual: You can run `backup/backup_mongodb.sh` if needed.
 
-## Environment Variables
+- **Backup OpenSearch:**
+  - Automated: Managed by Ansible backup role and scheduled tasks.
+  - Manual: You can run `backup/backup_opensearch.sh` if needed.
 
-Refer to the `.env.example` file for the required environment variables for the application.  
-**Do not commit your real `.env` file to version control.**
 
-## Scheduled Backups
+## Configuration & Variables
 
-The `crontab.txt` file contains scheduled tasks for automated backups. These are installed automatically by Ansible.
+All service and infrastructure configuration is managed via Ansible variables in `ansible/group_vars/all.yml`.
 
-## Deployment Automation
+- Sensitive data (passwords, secrets) should be protected using Ansible Vault. See [Ansible Vault documentation](https://docs.ansible.com/ansible/latest/user_guide/vault.html).
+- Do not commit real secrets or production credentials to version control.
 
-Deployment and provisioning are fully automated using Ansible. See `ansible/site.yml` for details.
+Refer to the `.env.example` file for application-level environment variables only.
 
-## Conclusion
 
-This README serves as a guide to set up and manage the Moassel project.  
-For further assistance, refer to the Ansible roles and playbooks for detailed instructions.
+## Scheduled Backups & Automation
+
+All backup schedules and cron jobs are managed by Ansible. See `ansible/roles/backup` and `crontab.txt` for details. No manual cron setup is required.
+
+
+## Deployment & Provisioning
+
+Deployment, provisioning, and all service setup are fully automated using Ansible. See `ansible/site.yml` and the roles in `ansible/roles/` for details.
+
+
+## Ansible Roles Overview
+
+Each major service is managed by a dedicated Ansible role:
+
+- `nodejs`, `pm2`: Application runtime and process management
+- `mongodb`: Database installation, configuration, and user setup
+- `opensearch`, `opensearch_dashboards`, `opensearch_cli`: Search and analytics stack
+- `nginx`: Web server and reverse proxy
+- `awscli`: AWS CLI tools for backup/restore
+- `certbot`: SSL certificate automation
+- `firewall`: Security and port management
+- `ssh`: SSH hardening and access control
+- `backup`: Automated backup and restore tasks
+
+All configuration is dynamic and controlled via variables in `group_vars/all.yml`.
+
+---
+
+For further assistance, see the Ansible playbooks and roles, or contact the project maintainer.
